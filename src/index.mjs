@@ -2,7 +2,7 @@ import express from "express";
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000; //caso não tenha um port do enviroment será setado 3000
 const mockUsers = [
@@ -20,22 +20,20 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/users", (req, res) => {
-  console.log(req.query)
+  console.log(req.query);
   const {
-    query: { filter, value }
+    query: { filter, value },
   } = req;
   //se o filter e o value estiverem vazios
-  if(!filter && !value) return res.send(mockUsers);
-  if(filter && value) 
-    return res.send(
-      mockUsers.filter((user) => user[filter].includes(value))
-    );
+  if (!filter && !value) return res.send(mockUsers);
+  if (filter && value)
+    return res.send(mockUsers.filter((user) => user[filter].includes(value)));
   return res.send(mockUsers);
 });
 
 app.post("/api/users", (req, res) => {
   const { body } = req;
-  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body  };
+  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body };
   mockUsers.push(newUser);
   return res.status(201).send(newUser);
 });
@@ -44,18 +42,26 @@ app.get("/api/users/:id", (req, res) => {
   console.log(req.params);
   const parsedID = parseInt(req.params.id);
   if (isNaN(parsedID)) return res.sendStatus(400);
-
   const findUsers = mockUsers.find((user) => user.id === parsedID);
   if (!findUsers) return res.sendStatus(404);
   return res.send(findUsers);
 });
 
 app.get("/api/products", (req, res) => {
-  res.send([
-    { id: 123, product: "chicken breasts", price: "12.99" },
-    { id: 456, product: "soya beans", price: "7.99" },
-    { id: 789, product: "energy drink", price: "3.59" },
-  ]);
+  res.send([{ id: 123, product: "chicken breasts", price: "12.99" }]);
+});
+
+app.put("/api/users/:id", (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+  const parsedID = parseInt(id);
+  if (isNaN(parsedID)) return res.sendStatus(400);
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedID);
+  if (findUserIndex === -1) return res.sendStatus(404);
+  mockUsers[findUserIndex] = { id: parsedID, ...body };
+  return res.sendStatus(200)
 });
 
 app.listen(PORT, () => {
