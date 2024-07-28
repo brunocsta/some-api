@@ -38,9 +38,6 @@ router.get("/api/users/:id", resolveIndexByUserId, (req, res) => {
   return res.send(findUser);
 });
 
-router.get("/api/products", (req, res) => {
-  res.send([{ id: 123, product: "chicken breasts", price: "12.99" }]);
-});
 
 router.post(
   "/api/users",
