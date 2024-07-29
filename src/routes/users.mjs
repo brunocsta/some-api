@@ -45,7 +45,6 @@ router.get("/api/users/:id", resolveIndexByUserId, (req, res) => {
   return res.send(findUser);
 });
 
-
 router.post(
   "/api/users",
   checkSchema(createUserValidationSchema),
