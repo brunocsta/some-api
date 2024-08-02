@@ -49,8 +49,11 @@ router.post(
   "/api/users",
   checkSchema(createUserValidationSchema),
   async (req, res) => {
-    const { body } = req;
-    const newUser = new User(body);
+    const result = validationResult(req);
+    if (!result.isEmpty()) return res.send(result.array());
+    const data = matchedData(req);
+    const newUser = new User(data);
+    console.log(data);
     try {
       const savedUser = await newUser.save();
       console.log(body);
@@ -73,6 +76,7 @@ router.patch("/api/users/:id", resolveIndexByUserId, (req, res) => {
   mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
   return res.sendStatus(200);
 });
+
 
 router.delete("/api/users/:id", resolveIndexByUserId, (req, res) => {
   const { findUserIndex } = req;
