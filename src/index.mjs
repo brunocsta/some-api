@@ -6,7 +6,8 @@ import { mockUsers } from "./utils/constants.mjs";
 import passport from "passport";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
-import "./strategies/local-strategy.mjs";
+//import "./strategies/local-strategy.mjs";
+import "./strategies/discord-strategy.mjs"
 
 const app = express();
 
@@ -46,6 +47,16 @@ app.get("/api/auth/status", (req, res) => {
   console.log(req.sessionID);
   return req.user ? res.send(req.user) : res.sendStatus(401);
 });
+
+app.get("/api/auth/discord", passport.authenticate("discord"));
+
+app.get(
+  "/api/auth/discord/redirect",
+  passport.authenticate("discord"),
+  (req, res) => {
+    res.sendStatus(200);
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Runing on port ${PORT}`);
