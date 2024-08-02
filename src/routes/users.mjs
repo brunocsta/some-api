@@ -8,7 +8,7 @@ import {
 import { mockUsers } from "../utils/constants.mjs";
 import { createUserValidationSchema } from "../utils/validationSchemas.mjs";
 import { resolveIndexByUserId } from "../utils/middlewares.mjs";
-
+import { User } from "../mongoose/schemas/user.mjs";
 const router = Router();
 
 router.get(
@@ -48,18 +48,17 @@ router.get("/api/users/:id", resolveIndexByUserId, (req, res) => {
 router.post(
   "/api/users",
   checkSchema(createUserValidationSchema),
-  (req, res) => {
-    const result = validationResult(req);
-    // console.log(`Result ${result}`);
-
-    if (!result.isEmpty())
-      return res.status(400).send({ errors: result.array() });
-
-    const data = matchedData(req);
-    console.log(data);
-    const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...data };
-    mockUsers.push(newUser);
-    return res.status(201).send(newUser);
+  async (req, res) => {
+    const { body } = req;
+    const newUser = new User(body);
+    try {
+      const savedUser = await newUser.save();
+      console.log(body);
+      return res.status(201).send(savedUser);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(400);
+    }
   }
 );
 
