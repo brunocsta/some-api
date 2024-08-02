@@ -5,6 +5,7 @@ import session from "express-session";
 import { mockUsers } from "./utils/constants.mjs";
 import passport from "passport";
 import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
 import "./strategies/local-strategy.mjs";
 
 const app = express();
@@ -20,11 +21,12 @@ app.use(cookieParser("helloworld"));
 app.use(
   session({
     secret: "bruno dev",
-    saveUninitialized: false, //não salva dados nao modificados no sessions store
-    resave: false,
+    saveUninitialized: true, //não salva dados nao modificados no sessions store, agora com a base Session Store feita deixo como true
+    resave: false, //o resave substitui o cookie anterior, evitando a o acumulo de logs salvos para a mesma session
     cookie: {
       maxAge: 60000 * 60,
     },
+    store: MongoStore.create({ client: mongoose.connection.getClient() }),
   })
 );
 app.use(passport.initialize());
@@ -41,6 +43,7 @@ app.get("/api/auth/status", (req, res) => {
   console.log("Inside /auth/status endpoint");
   console.log(req.user);
   console.log(req.session);
+  console.log(req.sessionID);
   return req.user ? res.send(req.user) : res.sendStatus(401);
 });
 
